@@ -6,9 +6,8 @@ import {
   Route,
   browserHistory,
   Redirect,
+  IndexRoute,
 } from 'react-router';
-
-import App from './containers/App';
 
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
@@ -21,11 +20,19 @@ const muiTheme = getMuiTheme(theme);
 // Needed for React Developer Tools
 window.React = React;
 
+// Containers
+import App from './containers/App';
+
+// Components
+import Queue from './components/Queue';
+
 ReactDOM.render(
   <MuiThemeProvider muiTheme={muiTheme}>
     <Router history={browserHistory}>
-    <Route path='/' component={App} />
-    <Redirect from='*' to='/' />
+      <Route path='/' component={App}>
+        <IndexRoute component={Queue}/>
+      </Route>
+      <Redirect from='*' to='/' />
     </Router>
   </MuiThemeProvider>,
   document.getElementById('root')

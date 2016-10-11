@@ -7,8 +7,8 @@ module.exports = {
   fontFamily: 'Roboto, sans-serif',
 
   palette: {
-    primary1Color:      Colors.lightGreen500,
-    primary2Color:      Colors.lightGreen700,
+    primary1Color:      Colors.lightBlue500,
+    primary2Color:      Colors.lightBlue700,
     primary3Color:      Colors.lightBlack,
     accent1Color:       Colors.pinkA200,
     accent2Color:       Colors.grey100,
