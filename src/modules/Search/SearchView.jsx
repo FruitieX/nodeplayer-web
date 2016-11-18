@@ -12,6 +12,8 @@ import * as AppViewState from '../AppViewState';
 
 import fetchJsonp from 'fetch-jsonp';
 
+import _ from 'lodash';
+
 import {
   get,
   post
@@ -49,11 +51,17 @@ class Search extends Component {
       return;
     }
 
-    // TODO: debounce
-    const [searched, suggestions] = await fetchJsonp(`${ytSearchSuggestionsPath}${searchField}`)
-      .then(response => response.json());
-    this.setState({ suggestions });
+    this.fetchSuggestions(searchField);
   }
+
+  fetchSuggestions = _.throttle((searchField) => {
+    fetchJsonp(`${ytSearchSuggestionsPath}${searchField}`)
+      .then(response => response.json())
+      .then((suggestions) => {
+        suggestions = suggestions[1];
+        this.setState({ suggestions });
+    });
+  }, 500)
 
   async doSearch() {
     const allResults = await post('/api/v1/search', {
