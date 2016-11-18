@@ -1,7 +1,7 @@
 import Promise from 'bluebird';
 import Boom from 'boom';
-import {getConfiguration} from '../utils/configuration';
-import {getAuthenticationToken} from '../utils/authentication';
+import { getConfiguration } from '../utils/configuration';
+import { getAuthenticationToken } from '../utils/authentication';
 
 const EventEmitter = require('event-emitter');
 

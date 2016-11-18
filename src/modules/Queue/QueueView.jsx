@@ -7,12 +7,18 @@ import TextField from 'material-ui/TextField';
 import { List, ListItem } from 'material-ui/List';
 import Subheader from 'material-ui/Subheader';
 import Avatar from 'material-ui/Avatar';
+import Slider from 'material-ui/Slider';
 
-import * as QueueViewState from './QueueViewState';
-import * as AppViewState from '../AppViewState';
+import RaisedButton from 'material-ui/RaisedButton';
+import Play from 'material-ui/svg-icons/av/play-arrow';
+import Pause from 'material-ui/svg-icons/av/pause';
+import Next from 'material-ui/svg-icons/av/skip-next';
+import Prev from 'material-ui/svg-icons/av/skip-previous';
 
 import fetchJsonp from 'fetch-jsonp';
 import { getConfiguration } from '../../utils/configuration';
+
+import _ from 'lodash';
 
 import {
   get,
@@ -25,25 +31,59 @@ const ytSearchSuggestionsPath =
 const styles = {
   searchField: {
     width: '100%'
+  },
+  nowPlayingStyle: {
   }
 };
 
 class Queue extends Component {
   constructor(props) {
     super(props);
+
+    this.state = {
+      progress: 0
+    };
   }
 
-  async componentDidMount() {
-    const queue = await get('/api/v1/queue');
-    this.props.dispatch(QueueViewState.replaceQueue(queue));
+  play() {
+    post('/api/v1/play');
+  }
 
-    const nowPlaying = queue[0];
-    const apiRoot = getConfiguration('API_ROOT');
-    if (nowPlaying) {
-      let path = `${apiRoot}/api/v1/song`;
-      path += `/${nowPlaying.backendName}/${nowPlaying.songId}.${nowPlaying.format}`;
-      this.props.dispatch(AppViewState.setAudioSrc(path));
-    }
+  pause() {
+    post('/api/v1/pause');
+  }
+
+  next() {
+    post('/api/v1/skip');
+  }
+
+  prev() {
+    post('/api/v1/skip', { cnt: -1 });
+  }
+
+  seek = _.throttle((event, position) => {
+    position *= this.props.nowPlaying.duration;
+    post('/api/v1/seek', { position });
+  }, 500)
+
+  changeSong = (song) => {
+    post('/api/v1/changeSong', { uuid: song.uuid });
+  }
+
+  componentDidMount() {
+    this.progressInterval = setInterval(() => {
+      if (!this.props.nowPlaying) {
+        return;
+      }
+      this.setState({
+        progress: Math.min(1, Math.max(0,
+          (new Date().getTime() - this.props.playbackPosDate + this.props.nowPlaying.playback.curPos) / this.props.nowPlaying.duration))
+      });
+    }, 200);
+  }
+
+  componentWillUnmount() {
+    clearInterval(this.progressInterval);
   }
 
   render() {
@@ -54,13 +94,18 @@ class Queue extends Component {
         primaryText = `${song.artist} - ${primaryText}`;
       }
 
+      const avatar = (this.props.nowPlaying && this.props.nowPlaying.uuid === song.uuid) ?
+        <Avatar icon={<Play/>} />
+        :
+        <Avatar src={song.albumArt.lq} />
+
       return <ListItem
         primaryText={ primaryText }
         secondaryText={ song.album }
-        leftAvatar={ <Avatar src={song.albumArt.lq} /> }
+        leftAvatar={ avatar }
         key={ index }
         onTouchTap={ () => {
-          //this.queueSong(song);
+          this.changeSong(song);
         }}
       />
     });
@@ -82,6 +127,29 @@ class Queue extends Component {
           <List>
             { queue }
           </List>
+          <CardText>
+            <RaisedButton
+              onTouchTap={() => this.prev()}
+              icon={<Prev />} />
+            <RaisedButton
+              onTouchTap={() => this.play()}
+              icon={<Play />} />
+            <RaisedButton
+              onTouchTap={() => this.pause()}
+              icon={<Pause />} />
+            <RaisedButton
+              onTouchTap={() => this.next()}
+              icon={<Next />} />
+          </CardText>
+          <CardText>
+            <Slider
+              min={0}
+              max={1}
+              step={0.00001}
+              value={this.state.progress}
+              onChange={this.seek}
+            />
+          </CardText>
         </Card>
       </div>
     );

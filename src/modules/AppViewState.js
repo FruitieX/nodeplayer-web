@@ -7,13 +7,11 @@ import {
 // Action creators
 export const closeSnackbar = createAction('Close snackbar');
 export const openSnackbar = createAction('Open snackbar');
-export const setAudioSrc = createAction('Set audio source');
 
 // Initial state
 const initialState = Map({
   snackbarOpen: false,
-  snackbarMessage: '',
-  audioSrc: null
+  snackbarMessage: ''
 });
 
 // Reducer
@@ -23,6 +21,5 @@ export default createReducer({
     return state
       .set('snackbarMessage', payload)
       .set('snackbarOpen', true);
-  },
-  [setAudioSrc]: (state, payload) => state.set('audioSrc', payload)
+  }
 }, initialState);

@@ -5,6 +5,7 @@ import rootReducer from './reducer';
 import { routerMiddleware } from 'react-router-redux';
 import { browserHistory } from 'react-router'
 
+// TODO: refactor into similar functionality as in Pepperoni App kit
 export default function configureStore(initialState) {
   const enhancer = compose(
     //applyMiddleware(thunk),

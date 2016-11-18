@@ -3,9 +3,10 @@ import { Component, PropTypes } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router';
+import { getConfiguration } from '../utils/configuration';
+import * as ws from '../services/websockets';
 //import rest from '../reducers/api';
 
-import RaisedButton from 'material-ui/RaisedButton';
 import MenuDrawer from './MenuDrawer/MenuDrawerViewContainer';
 import Header from './Header/HeaderViewContainer';
 import Snackbar from 'material-ui/Snackbar';
@@ -26,9 +27,13 @@ class App extends Component {
     super(props);
 
     this.jwtTimer = null;
+    this.lastPos = -1;
+    this.lastSrc = null;
+    this.lastPosDate = -1;
   }
 
   componentDidMount() {
+    ws.init(this.props.dispatch);
     /*
     this.jwtTimer = setInterval(_ => {
       console.log('renewing auth token');
@@ -38,6 +43,40 @@ class App extends Component {
     console.log('renewing auth token');
     this.props.dispatch(rest.actions.renewAuth());
     */
+  }
+
+  componentDidUpdate() {
+    const audio = this.refs.audioTag;
+    const np = this.props.nowPlaying;
+
+    let audioSrc = null;
+    let curPos = -1;
+
+    const apiRoot = getConfiguration('API_ROOT');
+    if (np) {
+      const npPath = `${np.backendName}/${np.songId}.${np.format}`;
+      audioSrc = `${apiRoot}/api/v1/song/${npPath}`;
+
+      curPos = np.playback.curPos / 1000;
+
+      if (this.lastPosDate === this.props.playbackPosDate) {
+        return;
+      }
+
+      this.lastPos = curPos;
+      this.lastSrc = audioSrc;
+      this.lastPosDate = this.props.playbackPosDate;
+    } else {
+      audioSrc = null;
+
+      this.lastPos = curPos;
+      this.lastSrc = audioSrc;
+      this.lastPosDate = this.props.playbackPosDate;
+    }
+
+    audio.src = audioSrc;
+    audio.currentTime = curPos;
+    audio.autoplay = true;
   }
 
   componentWillUnmount() {
@@ -55,7 +94,7 @@ class App extends Component {
   render() {
     return(
       <div>
-        <audio src={this.props.audioSrc} autoPlay='true' style={styles.audioTag} />
+        <audio ref='audioTag' />
         <MenuDrawer pathname={this.props.location.pathname} />
         <Header pathname={this.props.location.pathname} params={this.props.params} />
         {React.cloneElement(this.props.children, this.props)}

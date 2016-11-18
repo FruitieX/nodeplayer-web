@@ -5,7 +5,7 @@ import { combineReducers } from 'redux-immutablejs';
 //import { routerReducer } from 'react-router-redux';
 import menuDrawerReducer from '../modules/MenuDrawer/MenuDrawerState';
 import appViewReducer from '../modules/AppViewState';
-import queueViewReducer from '../modules/Queue/QueueViewState';
+import serverReducer from '../modules/Server/ServerState';
 import { intlReducer } from 'react-intl-redux'
 
 const reducers = {
@@ -15,8 +15,8 @@ const reducers = {
   // App view state
   appView: appViewReducer,
 
-  // Queue view state
-  queueView: queueViewReducer,
+  // Server state
+  serverState: serverReducer,
   // Routing state
   //routing: routerReducer,
 
