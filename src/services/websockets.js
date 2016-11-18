@@ -21,7 +21,7 @@ export function init(dispatch) {
       dispatch(ServerState.replaceQueue(data.params.queue));
       dispatch(ServerState.play(data.params.nowPlaying));
     } else if (data.method === 'queue') {
-      dispatch(ServerState.replaceQueue(data.params.queue));
+      dispatch(ServerState.replaceQueue(data.params));
     } else if (data.method === 'play') {
       dispatch(ServerState.play(data.params));
     } else if (data.method === 'stop') {
