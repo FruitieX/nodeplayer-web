@@ -48,7 +48,7 @@ import {
   setConfiguration
 } from './utils/configuration';
 
-setConfiguration('API_ROOT', 'http://localhost:10102');
+setConfiguration('API_ROOT', `${window.location.protocol}\/\/${window.location.hostname}:10102`);
 
 //Needed for React Developer Tools
 window.React = React;
